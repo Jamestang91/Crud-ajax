@@ -1,0 +1,142 @@
+<script>
+// Save data
+$('#btnsave').click(function(){
+    //console.log("Button Save Clicked");
+    output ="";
+    let rid = $('#recordid').val();
+    let fn = $('#firstnameid').val();
+    let ln = $('#lastnameid').val();
+    let e = $('#emailid').val();
+    let p = $('#phoneid').val();
+    let a = $('#addressid').val();
+    let c = $('#cityid').val();
+    let s = $('#stateid').val();
+    let z = $('#zipcodeid').val();
+    let t = $('#created_at_id').val();
+    console.log(rid);
+
+    if(fn == ""){
+        console.log("Please Enter First Name");
+    }else if(ln == ""){
+        console.log("Please Enter Last Name");
+    }else if(e == ""){
+        console.log("Please Enter Email Address");
+    }else if(p == ""){
+        console.log("Please Enter Phone Address");
+    }else if(a == ""){
+        console.log("Please Enter Address");
+    }else if(s == ""){
+        console.log("Please Enter State");
+    }else if(z == ""){
+        console.log("Please Enter Zipcode");
+    }else if(c == ""){
+        console.log("Please Enter City");
+    }else{
+        mydata = {recordid:rid, created_at:t, first_name:fn, last_name:ln, email:e, address:a, phone:p,
+        address:a, city:c, state:s, zipcode:z};
+
+        $.ajax({
+            url: "{% url 'save' %}",
+            method: "POST",
+            data: mydata,
+
+            success:function(data){
+             x = data.record_data;
+
+             if(data.status == 'Data Saved'){
+                 console.log('Data Submitted');
+
+                 for(i=0; i<x.length; i++){
+                     output += "<tr><td>" + x[i].id +
+                        "</td><td>" + x[i].first_name + " " + x[i].last_name +
+                        "</td><td>" + x[i].email + "</td><td>" + x[i].phone +
+                        "</td><td>" + x[i].address + "</td><td>" + x[i].city +
+                        "</td><td>" + x[i].state + "</td><td>" + x[i].zipcode +
+                        "</td><td>" + x[i].created_at +
+                        "</td><td> <input type='button' class='btn btn-warning btn-sm btn-edit' value='Edit' data-sid="+x[i].id +
+                        "><input type='button' class='btn btn-danger btn-sm btn-del' value='Delete' data-sid="+ x[i].id + "></td>"
+                 }
+                 $('#tbody').html(output);
+                 $('#recordid').val("");
+                 $('form')[0].reset();
+             }
+
+             if(data.status == 'Not Saved'){
+                 console.log('Unable Submit Data');
+                 $('#recordid').val("");
+             }
+
+
+
+            }
+        });
+}
+
+})
+
+// Delete
+$('#tbody').on("click", ".btn-del", function(){
+    var action = confirm("Are you sure you want to delete this user?");
+    let id = $(this).attr("data-sid");
+    mydata = {rid:id};
+    mythis = this;
+    if (action != false) {
+        $.ajax({
+            url: "{% url 'delete' %}",
+            method:"POST",
+            data:mydata,
+
+            success: function(data){
+                console.log(data);
+
+                if(data.status == 1){
+                    console.log("Data Deleted");
+                    $(mythis).closest("tr").fadeOut();
+                }
+
+                if(data.status == 0){
+                    console.log("Unable To Deleted Data");
+                    $(mythis).closest("tr").fadeOut();
+                }
+
+            },
+        })
+    }
+})
+
+
+
+// Edit
+$('#tbody').on("click", ".btn-edit", function(){
+    console.log("Edit Button Cliked");
+    let id = $(this).attr("data-sid");
+
+    console.log(id);
+
+    mydata = {rid:id}
+
+    $.ajax({
+        url: "{% url 'edit' %}",
+        method:"POST",
+        data:mydata,
+
+        success: function(data){
+            console.log(data);
+            $("#recordid").val(data.id);
+            $("#created_at_id").val(data.created_at);
+            $("#firstnameid").val(data.first_name);
+            $("#lastnameid").val(data.last_name);
+            $("#emailid").val(data.email);
+            $("#phoneid").val(data.phone);
+            $("#addressid").val(data.address);
+            $("#cityid").val(data.city);
+            $("#stateid").val(data.state);
+            $("#zipcodeid").val(data.zipcode);
+
+            console.log(data.id);
+        },
+    })
+})
+
+
+</script>
