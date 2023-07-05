@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if user.is_authenticated %}
+<h1>Records...</h1>
+
+<div class="row" >
+    <div class="col-sm-4">
+        <h4 class="text-center alert alert-info">Add/Update Record</h4>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="recordid" id="recordid" />
+            <input type="hidden" name="created_at_id" id="created_at_id" />
+            {{ form.as_p}}
+
+            <input type="button" class="btn btn-success mb-2" value="Save" id="btnsave">
+        </form>
+    </div>
+    <div class="col-sm-8" >
+        <div id="table-container">
+            <table class="table table-striped table-hover table-bordered custom-table">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Phone</th>
+                  <th scope="col">Address</th>
+                  <th scope="col">City</th>
+                  <th scope="col">State</th>
+                  <th scope="col">Zipcode</th>
+                  <th scope="col">Created At</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                {% if records %}
+                    {% for record in records %}
+                    <tr>
+                        <td><a href="{% url 'record' record.id %}">{{ record.id }}</a></td>
+                        <td>{{ record.first_name }} {{ record.last_name }}</td>
+                        <td>{{ record.email }}</td>
+                        <td>{{ record.phone }}</td>
+                        <td>{{ record.address }}</td>
+                        <td>{{ record.city }}</td>
+                        <td>{{ record.state }}</td>
+                        <td>{{ record.zipcode }}</td>
+                        <td>{{ record.created_at }}</td>
+                        <td>
+                            <input type="button" value="Edit" class="btn btn-warning btn-sm btn-edit" data-sid="{{record.id}}">
+                            <input type="button" value="Delete" class="btn btn-danger btn-sm btn-del" data-sid="{{record.id}}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<h1>Login</h1>
+<br/>
+<form method="POST" action="{% url 'home' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+        <input type="text" class="form-control" name="username"
+        placeholder="Username" required>
+    </div><br/>
+    <div class="mb-3">
+        <input type="password" class="form-control" name="password"
+        placeholder="Password" required>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-secondary">Login</button>
+</form>
+{% endif %}
+
+{% endblock %}
